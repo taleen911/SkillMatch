@@ -41,7 +41,6 @@ jobs:
       - name: Deploy Container
         run: |
           docker rm -f skillmatch-app || true
-
           docker run -d \
             --name skillmatch-app \
             -p 5000:5000 \
