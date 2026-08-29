@@ -1,0 +1,58 @@
+name: Security Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  security-scan:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Bandit
+        run: |
+          pip install bandit
+
+      - name: Run Bandit
+        continue-on-error: true
+        run: |
+          bandit -r . -f txt -o bandit-report.txt || true
+
+      - name: Run Hadolint
+        continue-on-error: true
+        run: |
+          docker run --rm -i hadolint/hadolint < Dockerfile > hadolint-report.txt || true
+
+      - name: Run TruffleHog
+        continue-on-error: true
+        run: |
+          docker run --rm \
+          -v "$PWD:/work" \
+          trufflesecurity/trufflehog:latest filesystem /work \
+          > trufflehog-report.txt || true
+
+      - name: Upload Bandit Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.txt
+
+      - name: Upload Hadolint Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: hadolint-report
+          path: hadolint-report.txt
+
+      - name: Upload TruffleHog Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trufflehog-report
+          path: trufflehog-report.txt
+
+      - name: Verify
+        run: |
+          ls -lh *.txt
