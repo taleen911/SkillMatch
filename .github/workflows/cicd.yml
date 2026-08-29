@@ -1,0 +1,26 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: skills-utilization
+
+jobs:
+  build-and-scan:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Files
+        run: |
+          pwd
+          ls -la
+
+      - name: Build image
+        run: |
+          docker build -t $IMAGE_NAME:${{ github.sha }} .
+
