@@ -53,6 +53,7 @@ jobs:
 
       - name: Deploy
         run: |
+          cd /home/aau/Desktop/Skills_Utilization
           docker compose down
           ./vault.sh
           docker compose up -d
