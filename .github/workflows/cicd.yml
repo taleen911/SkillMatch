@@ -38,6 +38,19 @@ jobs:
         run: |
           docker images
 
+  build-and-deploy:
+    needs: build-and-scan
+    runs-on: self-hosted
+
+    steps:
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u taleen911 --password-stdin
+
+      - name: Pull Latest Image
+        run: |
+          docker pull $IMAGE_NAME:latest
+
       - name: Deploy
         run: |
           docker rm -f skillmatch-app || true
