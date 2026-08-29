@@ -6,8 +6,7 @@ on:
       - main
 
 jobs:
-  build:
-    name: Build
+  build-and-scan:
     runs-on: self-hosted
 
     steps:
@@ -17,9 +16,13 @@ jobs:
         run: |
           docker build -t skills-utilization:${{ github.sha }} .
 
-  deploy:
-    name: Deploy
-    needs: build
+      - name: Scan Image
+        run: |
+          echo "Scanning image..."
+          docker images
+
+  build-and-deploy:
+    needs: build-and-scan
     runs-on: self-hosted
 
     steps:
@@ -29,7 +32,7 @@ jobs:
         run: |
           docker rm -f skillmatch-app || true
 
-      - name: Run New Container
+      - name: Deploy Container
         run: |
           docker run -d \
             --name skillmatch-app \
