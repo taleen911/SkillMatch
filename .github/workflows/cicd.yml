@@ -53,13 +53,6 @@ jobs:
 
       - name: Deploy
         run: |
-          docker rm -f skillmatch-app || true
-
-          docker run -d \
-            --name skillmatch-app \
-            -p 5000:5000 \
-            $IMAGE_NAME:latest
-
-      - name: Verify
-        run: |
-          docker ps
+          docker compose down
+          ./vault.sh
+          docker compose up -d
