@@ -5,6 +5,13 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/taleen911/project2
+
 jobs:
   build-and-scan:
     runs-on: self-hosted
@@ -12,33 +19,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Build Docker Image
         run: |
-          docker build -t skills-utilization:${{ github.sha }} .
+          docker build -t $IMAGE_NAME:latest .
+          docker build -t $IMAGE_NAME:${{ github.sha }} .
+
+      - name: Push Image
+        run: |
+          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:${{ github.sha }}
 
       - name: Scan Image
         run: |
-          echo "Scanning image..."
           docker images
-
-  build-and-deploy:
-    needs: build-and-scan
-    runs-on: self-hosted
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Stop Old Container
-        run: |
-          docker rm -f skillmatch-app || true
 
       - name: Deploy Container
         run: |
+          docker rm -f skillmatch-app || true
+
           docker run -d \
             --name skillmatch-app \
             -p 5000:5000 \
-            skills-utilization:${{ github.sha }}
+            $IMAGE_NAME:latest
 
       - name: Verify Deployment
         run: |
           docker ps
+`
