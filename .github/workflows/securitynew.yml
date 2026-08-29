@@ -15,7 +15,7 @@ jobs:
 
       - name: Install Bandit
         run: |
-          pip install bandit
+          python3 -m pip install --break-system-packages bandit
 
       - name: Run Bandit
         continue-on-error: true
@@ -31,28 +31,15 @@ jobs:
         continue-on-error: true
         run: |
           docker run --rm \
-          -v "$PWD:/work" \
-          ghcr.io/trufflesecurity/trufflehog:latest filesystem /work \
-          > trufflehog-report.txt || true
+            -v "$PWD:/work" \
+            ghcr.io/trufflesecurity/trufflehog:latest filesystem /work \
+            > trufflehog-report.txt || true
 
-      - name: Upload Bandit Report
+      - name: Upload Reports
         uses: actions/upload-artifact@v4
         with:
-          name: bandit-report
-          path: bandit-report.txt
-
-      - name: Upload Hadolint Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: hadolint-report
-          path: hadolint-report.txt
-
-      - name: Upload TruffleHog Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: trufflehog-report
-          path: trufflehog-report.txt
-
-      - name: Verify Reports
-        run: |
-          ls -lh *.txt
+          name: security-reports
+          path: |
+            bandit-report.txt
+            hadolint-report.txt
+            trufflehog-report.txt
