@@ -24,7 +24,7 @@ jobs:
         run: |
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u taleen911 --password-stdin
 
-      - name: Build Docker Image
+      - name: Build Image
         run: |
           docker build -t $IMAGE_NAME:latest .
           docker build -t $IMAGE_NAME:${{ github.sha }} .
@@ -35,12 +35,18 @@ jobs:
           docker push $IMAGE_NAME:${{ github.sha }}
 
       - name: Scan Image
-        run: docker images
+        run: |
+          docker images
 
-      - name: Deploy Container
+      - name: Deploy
         run: |
           docker rm -f skillmatch-app || true
-          docker run -d --name skillmatch-app -p 5000:5000 $IMAGE_NAME:latest
 
-      - name: Verify Deployment
-        run: docker ps
+          docker run -d \
+            --name skillmatch-app \
+            -p 5000:5000 \
+            $IMAGE_NAME:latest
+
+      - name: Verify
+        run: |
+          docker ps
