@@ -1,5 +1,4 @@
-
-  name: CI/CD
+name: CI/CD
 
 on:
   push:
@@ -50,3 +49,4 @@ jobs:
       - name: Verify Deployment
         run: |
           docker ps
+`
